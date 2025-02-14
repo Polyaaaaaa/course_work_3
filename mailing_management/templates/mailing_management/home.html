@@ -1,0 +1,17 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}
+    <h1 class="fw-light">{{ title }}</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="album py-5 bg-body-tertiary">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {% for object in object_list %}
+                    {% include 'mailing_management/includes/client_card.html' %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

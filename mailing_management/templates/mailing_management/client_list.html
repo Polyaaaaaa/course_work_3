@@ -1,0 +1,32 @@
+{% extends 'mailing_management/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row text-center">
+        {% for product in object_list %}
+        <div class="col-3">
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{ product.name }}</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">{{ product.cost }}</h1>
+                    <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                        <li>{{ product.description|truncatechars:100 }}</li>
+                        <li>{{ product.category }}</li>
+                        <li>{{ product.created_at }}</li>
+                    </ul>
+                    <a href="{% url 'products:product_detail' product.id %}" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">Детали</a>
+                    {% if request.user == product.owner or perms.catalog.can_unpublish_product %}
+                        <a href="{% url 'products:product_update' product.id %}" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">Редактировать</a>
+                    {% endif %}
+                    {% if request.user == product.owner or perms.catalog.can_delete_product %}
+                        <a href="{% url 'products:delete_product' product.id %}" class="btn btn-danger">Удалить</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

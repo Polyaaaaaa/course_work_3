@@ -49,6 +49,7 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy("mailing_management:home")
 
 
+
 class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = MailingClient
     form_class = MailingClientForm

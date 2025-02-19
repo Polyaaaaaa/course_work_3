@@ -19,7 +19,7 @@
                         <a href="{% url 'mailing_management:message_update' message.id %}" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">Редактировать</a>
                     {% endif %}
                     {% if request.user == message.owner or perms.mailing_management.can_delete_message %}
-                        <a href="{% url 'mailing_management:delete_message' message.id %}" class="btn btn-danger">Удалить</a>
+                        <a href="{% url 'mailing_management:message_delete' message.id %}" class="btn btn-danger">Удалить</a>
                     {% endif %}
                 </div>
             </div>

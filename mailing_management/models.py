@@ -52,3 +52,8 @@ class Newsletter(models.Model):
     )
     message = models.ForeignKey(MessageManagement, on_delete=models.CASCADE, verbose_name="Сообщение ")
     clients = models.ManyToManyField(MailingClient, verbose_name="Получатели ")
+
+    class Meta:
+        verbose_name = "рассылка"
+        verbose_name_plural = "рассылки"
+        ordering = ["message"]

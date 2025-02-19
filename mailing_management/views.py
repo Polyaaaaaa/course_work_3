@@ -14,22 +14,20 @@ from mailing_management.services import ClientService, MessageService
 # Create your views here.
 class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = MailingClient
-    template_name = "mailing_management/product_confirm_delete.html"
+    template_name = "mailing_management/client_confirm_delete.html"
     context_object_name = "moderator"
     success_url = reverse_lazy("mailing_management:home")
 
-    # def test_func(self):
-    #     client = self.get_object()
-    #     # Проверяем, является ли пользователь владельцем продукта или имеет ли он право на удаление
-    #     return self.request.user == client.owner or self.request.user.has_perm(
-    #         "moderator.can_delete_client"
-    #     )
+    def test_func(self):
+        # Проверяем, является ли пользователь владельцем продукта или имеет ли он право на удаление
+        return self.request.user.has_perm(
+            "moderator.can_delete_client"
+        )
 
     def post(self, request, *args, **kwargs):
-        client = self.get_object()
         # Проверяем права доступа
-        # if not self.test_func():
-        #     return HttpResponseForbidden("У вас нет прав для удаления этого продукта.")
+        if not self.test_func():
+            return HttpResponseForbidden("У вас нет прав для удаления этого продукта.")
 
         # Если права доступа есть, продолжаем с удалением
         return super().post(request, *args, **kwargs)
@@ -49,7 +47,6 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy("mailing_management:home")
 
 
-
 class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = MailingClient
     form_class = MailingClientForm
@@ -64,7 +61,7 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if user == self.get_object().owner:
             return MailingClientForm
         # Если пользователь - модератор
-        if user.has_perm("mailing_management.can_unpublish_product"):
+        if user.has_perm("mailing_management.can_unpublish_client"):
             return MailingClientModeratorForm
         raise PermissionDenied('Извините, но вы не обладаете достаточным количеством прав.')
 
@@ -76,7 +73,7 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def form_valid(self, form):
         # Проверяем, является ли пользователь модератором
-        if self.request.user.has_perm("mailing_management.can_unpublish_product"):
+        if self.request.user.has_perm("mailing_management.can_unpublish_client"):
             return super().form_valid(form)
         # Если пользователь не модератор, удаляем поле 'status' из данных формы
         form.cleaned_data.pop('status', None)
@@ -121,21 +118,16 @@ class ClientDetailView(DetailView):
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = MessageManagement
     template_name = "mailing_management/message_confirm_delete.html"
-    context_object_name = "moderator"
     success_url = reverse_lazy("mailing_management:home")
 
-    # def test_func(self):
-    #     client = self.get_object()
-    #     # Проверяем, является ли пользователь владельцем продукта или имеет ли он право на удаление
-    #     return self.request.user == client.owner or self.request.user.has_perm(
-    #         "moderator.can_delete_client"
-    #     )
+    def test_func(self):
+        # Проверяем, имеет ли пользователь право на удаление
+        return self.request.user.has_perm("moderator.can_delete_client")
 
     def post(self, request, *args, **kwargs):
-        client = self.get_object()
         # Проверяем права доступа
-        # if not self.test_func():
-        #     return HttpResponseForbidden("У вас нет прав для удаления этого продукта.")
+        if not self.test_func():
+            return HttpResponseForbidden("У вас нет прав для удаления этого объекта.")
 
         # Если права доступа есть, продолжаем с удалением
         return super().post(request, *args, **kwargs)
@@ -169,7 +161,7 @@ class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if user == self.get_object().owner:
             return MailingClientForm
         # Если пользователь - модератор
-        if user.has_perm("mailing_management.can_unpublish_product"):
+        if user.has_perm("mailing_management.can_unpublish_client"):
             return MailingClientModeratorForm
         raise PermissionDenied('Извините, но вы не обладаете достаточным количеством прав.')
 
@@ -181,7 +173,7 @@ class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def form_valid(self, form):
         # Проверяем, является ли пользователь модератором
-        if self.request.user.has_perm("mailing_management.can_unpublish_product"):
+        if self.request.user.has_perm("mailing_management.can_unpublish_client"):
             return super().form_valid(form)
         # Если пользователь не модератор, удаляем поле 'status' из данных формы
         form.cleaned_data.pop('status', None)

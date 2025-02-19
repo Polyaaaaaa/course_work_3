@@ -1,17 +1,18 @@
 {% extends 'mailing_management/base.html' %}
 
-{% block title_2 %}
-    <h1 class="fw-light">{{ title }}</h1>
-{% endblock %}
-
 {% block content %}
-    <div class="album py-5 bg-body-tertiary">
-        <div class="container">
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                {% for object in object_list %}
-                    {% include 'mailing_management/includes/client_card.html' %}
-                {% endfor %}
-            </div>
+<div class="container text-center">
+    <h1>Добро пожаловать на главную страницу!</h1>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <a href="{% url 'mailing_management:newsletter_list' %}" class="btn btn-primary btn-lg">Перейти к рассылкам</a>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'mailing_management:client_list' %}" class="btn btn-success btn-lg">Перейти к получателям</a>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'mailing_management:message_list' %}" class="btn btn-warning btn-lg">Перейти к письмам</a>
         </div>
     </div>
+</div>
 {% endblock %}

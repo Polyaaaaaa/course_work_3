@@ -18,3 +18,12 @@ class MessageService:
         # Получаем все продукты в указанной категории
         messages = MessageManagement.objects.filter(id=message_id)
         return messages
+
+
+class NewsletterService:
+
+    @staticmethod
+    def get_newsletter_list(newsletter_id):
+        # Получаем все продукты в указанной категории
+        newsletters = Newsletter.objects.filter(id=newsletter_id)
+        return newsletters

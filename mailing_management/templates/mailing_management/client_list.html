@@ -3,14 +3,13 @@
 {% block content %}
 <div class="container">
     <div class="row text-center">
-        {% for client in object_list %}
+        {% for client in clients %}
         <div class="col-3">
             <div class="card mb-4 box-shadow">
                 <div class="card-header">
                     <h4 class="my-0 font-weight-normal">{{ client.full_name }}</h4>
                 </div>
                 <div class="card-body">
-                    <h1 class="card-title pricing-card-title">{{ client.avatar }}</h1>
                     <ul class="list-unstyled mt-3 mb-4 text-start m-3">
                         <li>{{ client.comment|truncatechars:100 }}</li>
                         <li>{{ client.email }}</li>

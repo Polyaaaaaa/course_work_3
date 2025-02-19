@@ -6,8 +6,9 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import DeleteView, ListView, TemplateView, CreateView, UpdateView, DetailView
 
 from mailing_management.forms import MailingClientForm, MailingClientModeratorForm, MessageManagementForm
-from mailing_management.models import MailingClient, MessageManagement
-from mailing_management.services import ClientService
+from mailing_management.forms import NewsletterForm
+from mailing_management.models import MailingClient, MessageManagement, Newsletter
+from mailing_management.services import ClientService, MessageService
 
 
 # Create your views here.
@@ -45,7 +46,7 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("mailing_management:client_detail.html", args=[self.object.pk])
+        return reverse_lazy("mailing_management:home")
 
 
 class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -108,9 +109,12 @@ class ClientDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        product_id = self.object.id
-        context['client_list'] = ClientService.get_client_list(product_id)
+        client_id = self.object.id  # Используйте `id` вместо `client_id`
+        context['client_list'] = ClientService.get_client_list(client_id)
         return context
+
+    def get_success_url(self):
+        return reverse("mailing_management:client_detail", args=[self.object.pk])
 
 
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -151,7 +155,7 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
 
 
 class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = MailingClient
+    model = MessageManagement
     form_class = MailingClientForm
     template_name = 'mailing_management/message_form.html'
 
@@ -184,7 +188,7 @@ class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 class MessageListView(LoginRequiredMixin, ListView):
-    model = MailingClient
+    model = MessageManagement
     template_name = "mailing_management/message_list.html"
     context_object_name = "messages"
 
@@ -204,15 +208,47 @@ class MessageListView(LoginRequiredMixin, ListView):
 
 
 class MessageDetailView(DetailView):
-    model = MailingClient
+    model = MessageManagement
     template_name = 'mailing_management/message_detail.html'
     context_object_name = 'message'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        product_id = self.object.id
-        context['message_list'] = ClientService.get_product_list(product_id)
+        message_id = self.object.id
+        context['message_list'] = MessageService.get_message_list(message_id)
         return context
+
+
+class NewsletterListView(ListView):
+    model = Newsletter
+    template_name = 'newsletter_list.html'
+    context_object_name = 'newsletters'
+
+
+class NewsletterDetailView(DetailView):
+    model = Newsletter
+    template_name = 'newsletter_detail.html'
+    context_object_name = 'newsletter'
+
+
+class NewsletterCreateView(CreateView):
+    model = Newsletter
+    form_class = NewsletterForm
+    template_name = 'newsletter_form.html'
+    success_url = reverse_lazy('newsletter_list')  # Перенаправление после успешного сохранения
+
+
+class NewsletterUpdateView(UpdateView):
+    model = Newsletter
+    form_class = NewsletterForm
+    template_name = 'newsletter_form.html'
+    success_url = reverse_lazy('newsletter_list')  # Перенаправление после успешного обновления
+
+
+class NewsletterDeleteView(DeleteView):
+    model = Newsletter
+    template_name = 'newsletter_confirm_delete.html'
+    success_url = reverse_lazy('newsletter_list')  # Перенаправление после успешного удаления
 
 
 class HomeView(ListView):

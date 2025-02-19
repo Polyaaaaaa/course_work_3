@@ -3,24 +3,23 @@
 {% block content %}
 <div class="container">
     <div class="row text-center">
-        {% for product in object_list %}
+        {% for client in object_list %}
         <div class="col-3">
             <div class="card mb-4 box-shadow">
                 <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">{{ client.name }}</h4>
+                    <h4 class="my-0 font-weight-normal">{{ client.full_name }}</h4>
                 </div>
                 <div class="card-body">
-                    <h1 class="card-title pricing-card-title">{{ client.cost }}</h1>
+                    <h1 class="card-title pricing-card-title">{{ client.avatar }}</h1>
                     <ul class="list-unstyled mt-3 mb-4 text-start m-3">
-                        <li>{{ product.description|truncatechars:100 }}</li>
-                        <li>{{ product.category }}</li>
-                        <li>{{ product.created_at }}</li>
+                        <li>{{ client.comment|truncatechars:100 }}</li>
+                        <li>{{ client.email }}</li>
                     </ul>
-                    <a href="{% url 'mailing_management:product_detail' client.id %}" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">Детали</a>
-                    {% if request.user == client.owner or perms.catalog.can_unpublish_product %}
+                    <a href="{% url 'mailing_management:client_detail' client.id %}" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">Детали</a>
+                    {% if request.user == client.owner or perms.mailing_management.can_unpublish_client %}
                         <a href="{% url 'mailing_management:client_update' client.id %}" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">Редактировать</a>
                     {% endif %}
-                    {% if request.user == product.owner or perms.catalog.can_delete_product %}
+                    {% if request.user == client.owner or perms.mailing_management.can_delete_client %}
                         <a href="{% url 'mailing_management:delete_client' client.id %}" class="btn btn-danger">Удалить</a>
                     {% endif %}
                 </div>

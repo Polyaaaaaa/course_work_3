@@ -1,0 +1,14 @@
+<div class="col">
+    <div class="card shadow-sm h-100">
+        {% if object.image %}
+            <img src="{{ object.image.url }}">
+        {% endif %}
+        <div class="card-body">
+            <p class="card-text">Дата и время первой отправки: {{ object.beginning_date }}</p>
+            <p class="card-text">Дата и время окончания отправки: {{ object.end_date }}</p>
+            <p class="card-text">Статус публикации: {{ object.status }}</p>
+            <p class="card-text">Сообщение: {{ object.message }}</p>
+            <p class="card-text">Получатели: {{ object.clients }}</p>
+        </div>
+    </div>
+</div>

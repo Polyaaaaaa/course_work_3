@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.forms import BooleanField, ModelForm
-from mailing_management.models import MailingClient, MessageManagement
+from mailing_management.models import MailingClient, MessageManagement, Newsletter
 
 
 class StyleFormMixin:
@@ -42,17 +42,11 @@ class MailingClientForm(StyleFormMixin, ModelForm):
                 )
         return comment
 
-    # def clean_price(self):
-    #     price = self.cleaned_data["price"]
-    #     if price < 0:
-    #         raise ValidationError("Цена не может быть отрицательной")
-    #     return price
-
 
 class MailingClientModeratorForm(StyleFormMixin, ModelForm):
     class Meta:
         model = MailingClient
-        fields = ('status',)
+        fields = ('full_name',)
 
 
 class MessageManagementForm(StyleFormMixin, ModelForm):
@@ -104,4 +98,32 @@ class MessageManagementForm(StyleFormMixin, ModelForm):
 class MessageManagementModeratorForm(StyleFormMixin, ModelForm):
     class Meta:
         model = MessageManagement
+        fields = ('subject',)
+
+
+class NewsletterForm(StyleFormMixin, ModelForm):
+    class Meta:
+        model = Newsletter
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)  # Получаем текущего пользователя
+        super().__init__(*args, **kwargs)
+
+    def clean_message(self):
+        message = self.cleaned_data["message"]
+        if not message:
+            raise ValidationError("Сообщение не может быть пустым.")
+        return message
+
+    def clean_clients(self):
+        clients = self.cleaned_data["clients"]
+        if not clients:
+            raise ValidationError("Вы должны выбрать хотя бы одного клиента для рассылки.")
+        return clients
+
+
+class NewsletterModeratorForm(StyleFormMixin, ModelForm):
+    class Meta:
+        model = Newsletter
         fields = ('status',)

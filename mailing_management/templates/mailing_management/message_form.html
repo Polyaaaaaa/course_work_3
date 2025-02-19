@@ -1,10 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+{% extends 'mailing_management/base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <form class="row" method="post" enctype="multipart/form-data">
+                <div class="card">
+                    <div class="card-body">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            {% if field.name == 'status' and not perms.mailing_management.can_unpublish_message %}
+                                <!-- Скрываем поле status для пользователей без права can_unpublish_product -->
+                            {% else %}
+                                <div class="form-group">
+                                    {{ field.label_tag }} {{ field }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        {% if object %}
+                        Сохранить
+                        {% else %}
+                        Создать
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

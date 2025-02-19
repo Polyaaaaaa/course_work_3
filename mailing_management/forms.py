@@ -99,3 +99,9 @@ class MessageManagementForm(StyleFormMixin, ModelForm):
                     "Тело письма содержит слова, которые включены в список запрещенных."
                 )
         return body
+
+
+class MessageManagementModeratorForm(StyleFormMixin, ModelForm):
+    class Meta:
+        model = MessageManagement
+        fields = ('status',)

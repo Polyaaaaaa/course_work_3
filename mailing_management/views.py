@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DeleteView, ListView, TemplateView, CreateView, UpdateView, DetailView
 
-from mailing_management.forms import MailingClientForm, MailingClientModeratorForm
+from mailing_management.forms import MailingClientForm, MailingClientModeratorForm, MessageManagementForm
 from mailing_management.models import MailingClient, MessageManagement
 from mailing_management.services import ClientService
 
@@ -109,7 +109,7 @@ class ClientDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         product_id = self.object.id
-        context['product_list'] = ClientService.get_product_list(product_id)
+        context['client_list'] = ClientService.get_client_list(product_id)
         return context
 
 
@@ -138,8 +138,8 @@ class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
     model = MessageManagement
-    form_class = MailingClientForm
-    template_name = 'mailing_management/client_form.html'
+    form_class = MessageManagementForm
+    template_name = 'mailing_management/message_form.html'
     success_url = reverse_lazy("mailing_management:home")
 
     def form_valid(self, form):
@@ -147,16 +147,16 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("mailing_management:client_detail.html", args=[self.object.pk])
+        return reverse("mailing_management:message_detail.html", args=[self.object.pk])
 
 
 class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = MailingClient
     form_class = MailingClientForm
-    template_name = 'mailing_management/client_form.html'
+    template_name = 'mailing_management/message_form.html'
 
     def get_success_url(self):
-        return reverse("mailing_management:client_detail", args=[self.kwargs.get("pk")])
+        return reverse("mailing_management:message_detail", args=[self.kwargs.get("pk")])
 
     def get_form_class(self):
         user = self.request.user
@@ -185,19 +185,19 @@ class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class MessageListView(LoginRequiredMixin, ListView):
     model = MailingClient
-    template_name = "mailing_management/client_list.html"
-    context_object_name = "clients"
+    template_name = "mailing_management/message_list.html"
+    context_object_name = "messages"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['can_delete'] = self.request.user.has_perm('mailing_management.delete_client')
+        context['can_delete'] = self.request.user.has_perm('mailing_management.delete_message')
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
 
         # Проверка прав доступа
-        if not (self.request.user.is_staff or self.request.user.has_perm("mailing_management.view_all_clients")):
+        if not (self.request.user.is_staff or self.request.user.has_perm("mailing_management.view_all_messages")):
             queryset = queryset.filter(owner=self.request.user)
 
         return queryset
@@ -205,13 +205,13 @@ class MessageListView(LoginRequiredMixin, ListView):
 
 class MessageDetailView(DetailView):
     model = MailingClient
-    template_name = 'mailing_management/client_detail.html'
-    context_object_name = 'client'
+    template_name = 'mailing_management/message_detail.html'
+    context_object_name = 'message'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         product_id = self.object.id
-        context['product_list'] = ClientService.get_product_list(product_id)
+        context['message_list'] = ClientService.get_product_list(product_id)
         return context
 
 

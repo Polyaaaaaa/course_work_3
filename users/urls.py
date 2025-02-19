@@ -11,5 +11,5 @@ urlpatterns = [
     path("", HomeView.as_view(), name="home"),  # URL для главной страницы
     path('register/', RegisterView.as_view(template_name='users/register.html'), name='register'),
     path('login/', CustomLoginView.as_view(), name='login'),
-    path('logout/', CustomLogoutView.as_view(next_page='products:home'), name='logout'),
+    path('logout/', CustomLogoutView.as_view(next_page='mailing_management:home'), name='logout'),
 ]

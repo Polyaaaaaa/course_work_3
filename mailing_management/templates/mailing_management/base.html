@@ -191,7 +191,7 @@
     </ul>
 </div>
 {% block header %}
-{% include 'catalog/includes/inc_menu.html' %}
+{% include 'mailing_management/includes/inc_menu.html' %}
 {% endblock %}
 <main>
 
@@ -199,7 +199,7 @@
         <div class="row py-lg-5">
             <div class="col-lg-6 col-md-8 mx-auto">
                 {% block title %}
-                <a href="{% url 'products:product_form' %}" class="btn btn-primary" tabindex="-1" role="button"
+                <a href="{% url 'mailing_management:client_form' %}" class="btn btn-primary" tabindex="-1" role="button"
                    aria-disabled="true">Добавить пользователя</a>
                 {% endblock %}
             </div>

@@ -53,3 +53,49 @@ class MailingClientModeratorForm(StyleFormMixin, ModelForm):
     class Meta:
         model = MailingClient
         fields = ('status',)
+
+
+class MessageManagementForm(StyleFormMixin, ModelForm):
+    class Meta:
+        model = MessageManagement
+        fields = "__all__"
+
+    def clean_subject(self):
+        subject = self.cleaned_data['subject']
+        forbidden_words = [
+            "казино",
+            "криптовалюта",
+            "крипта",
+            "биржа",
+            "дешево",
+            "бесплатно",
+            "обман",
+            "полиция",
+            "радар",
+        ]
+        for word in forbidden_words:
+            if word in subject:
+                raise ValidationError(
+                    "Ваша тема письма содержит слова, которые включены в список запрещенных."
+                )
+        return subject
+
+    def clean_body(self):
+        body = self.cleaned_data['body']
+        forbidden_words = [
+            "казино",
+            "криптовалюта",
+            "крипта",
+            "биржа",
+            "дешево",
+            "бесплатно",
+            "обман",
+            "полиция",
+            "радар",
+        ]
+        for word in forbidden_words:
+            if word in body:
+                raise ValidationError(
+                    "Тело письма содержит слова, которые включены в список запрещенных."
+                )
+        return body

@@ -110,6 +110,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+# URL для перенаправления после успешного входа
+LOGIN_REDIRECT_URL = 'mailing_management:home'
+
+LOGIN_URL = 'users:login'
+
+# URL для перенаправления после выхода из системы
+LOGOUT_REDIRECT_URL = 'mailing_management:home'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

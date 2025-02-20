@@ -2,7 +2,8 @@
 import secrets
 
 from django.contrib.auth import login
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, \
+    PasswordResetConfirmView, PasswordResetCompleteView
 from django.core.mail import send_mail
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -31,16 +32,7 @@ class RegisterView(CreateView):
             from_email=EMAIL_HOST_USER,
             recipient_list=[user.email],
         )
-        # login(self.request, user)
-        # self.send_welcome_email(user.email)
         return super().form_valid(form)
-
-    # def send_welcome_email(self, user_email):
-    #     subject = "Добро пожаловать в наш сервис!"
-    #     message = "Спасибо, что зарегистрировались в нашем сервере!"
-    #     from_email = "polina.syatraikina@yandex.ru"
-    #     recipient_list = [user_email]
-    #     send_mail(subject, message, from_email, recipient_list)
 
 
 class CustomLoginView(LoginView):
@@ -55,3 +47,23 @@ class CustomLogoutView(LogoutView):
     next_page = reverse_lazy(
         "users:register"
     )  # Перенаправление на страницу регистрации после выхода
+
+
+class PasswordResetView_(PasswordResetView):
+    template_name = 'users/password_reset.html'
+    email_template_name = 'users/password_reset_email.html'
+    subject_template_name = 'users/password_reset_subject.txt'
+    success_url = reverse_lazy('users:password_reset_done')
+
+
+class PasswordResetDoneView_(PasswordResetDoneView):
+    template_name = 'users/password_reset_done.html'
+
+
+class PasswordResetConfirmView_(PasswordResetConfirmView):
+    template_name = 'users/password_reset_confirm.html'
+    success_url = reverse_lazy('users:password_reset_complete')
+
+
+class PasswordResetCompleteView_(PasswordResetCompleteView):
+    template_name = 'users/password_reset_complete.html'

@@ -201,6 +201,10 @@
                 {% block title %}
                 <a href="{% url 'mailing_management:client_form' %}" class="btn btn-primary" tabindex="-1" role="button"
                    aria-disabled="true">Добавить пользователя</a>
+                <a href="{% url 'mailing_management:message_create' %}" class="btn btn-primary" tabindex="-1" role="button"
+                   aria-disabled="true">Добавить письмо</a>
+                <a href="{% url 'mailing_management:newsletter_create' %}" class="btn btn-primary" tabindex="-1" role="button"
+                   aria-disabled="true">Добавить рассылку</a>
                 {% endblock %}
             </div>
         </div>

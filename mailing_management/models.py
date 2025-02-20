@@ -26,6 +26,8 @@ class MailingClient(models.Model):
             ("can_unpublish_client", "Can unpublish client"),
             ("can_delete_client", "Can delete client"),
             ("view_all_clients", "View all clients"),
+            ("can_create_client", "Can create a client"),
+            ("can_edit_client", "Can edit a client"),
         ]
 
     def __str__(self):

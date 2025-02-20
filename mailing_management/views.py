@@ -39,12 +39,13 @@ from mailing_management.services import (
 class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = MailingClient
     template_name = "mailing_management/client_confirm_delete.html"
-    context_object_name = "moderator"
     success_url = reverse_lazy("mailing_management:home")
 
     def test_func(self):
-        # Проверяем, является ли пользователь владельцем продукта или имеет ли он право на удаление
-        return self.request.user.has_perm("moderator.can_delete_client")
+        client = self.get_object()
+        return self.request.user == client.owner or self.request.user.has_perm(
+            "can_delete_client"
+        )
 
     def post(self, request, *args, **kwargs):
         # Проверяем права доступа
@@ -62,7 +63,10 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("mailing_management:home")
 
     def form_valid(self, form):
-        form.instance.owner = self.request.user  # Устанавливаем владельца
+        # Только пользователь или менеджер может создать клиента
+        if not self.request.user.has_perm("can_create_client"):
+            raise PermissionDenied("У вас нет прав для создания клиента.")
+        form.instance.owner = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -73,6 +77,13 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = MailingClient
     form_class = MailingClientForm
     template_name = "mailing_management/client_form.html"
+
+    def test_func(self):
+        client = self.get_object()
+        # Разрешаем редактировать только владельцу или модератору
+        return self.request.user == client.owner or self.request.user.has_perm(
+            "can_edit_client"
+        )
 
     def get_success_url(self):
         return reverse("mailing_management:client_detail", args=[self.kwargs.get("pk")])
@@ -89,14 +100,6 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             "Извините, но вы не обладаете достаточным количеством прав."
         )
 
-    def test_func(self):
-        # Получаем объект продукта
-        client = self.get_object()
-        # Можно редактировать продукт, если пользователь - владелец или модератор
-        return self.request.user == client.owner or self.request.user.has_perm(
-            "mailing_management.can_unpublish_client"
-        )
-
     def form_valid(self, form):
         # Проверяем, является ли пользователь модератором
         if self.request.user.has_perm("mailing_management.can_unpublish_client"):
@@ -111,24 +114,18 @@ class ClientListView(LoginRequiredMixin, ListView):
     template_name = "mailing_management/client_list.html"
     context_object_name = "clients"
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_staff:
+            return queryset  # Менеджеры могут видеть все
+        return queryset.filter(owner=self.request.user)  # Пользователи видят только свои
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["can_delete"] = self.request.user.has_perm(
             "mailing_management.delete_client"
         )
         return context
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-
-        # Проверка прав доступа
-        if not (
-            self.request.user.is_staff
-            or self.request.user.has_perm("mailing_management.view_all_clients")
-        ):
-            queryset = queryset.filter(owner=self.request.user)
-
-        return queryset
 
 
 class ClientDetailView(DetailView):
@@ -397,3 +394,14 @@ class SendMailAndUpdateStatisticsView(LoginRequiredMixin, View):
 
         # Возвращаем ответ с результатом
         return render(request, 'mailing_management/mail_sent.html', {'success': success})
+
+
+class BlockUserView(LoginRequiredMixin, UserPassesTestMixin, View):
+    permission_required = 'can_block_user'
+
+    def test_func(self):
+        # Проверяем, является ли пользователь администратором или менеджером
+        return self.request.user.is_staff or self.request.user.has_perm("can_block_user")
+
+    # Ваш код для блокировки пользователя
+

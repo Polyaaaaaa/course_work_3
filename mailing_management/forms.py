@@ -19,7 +19,7 @@ class MailingClientForm(StyleFormMixin, ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)  # Получаем текущего получателя
+        self.user = kwargs.pop("user", None)  # Получаем текущего получателя
         super().__init__(*args, **kwargs)
 
     def clean_comment(self):
@@ -46,7 +46,7 @@ class MailingClientForm(StyleFormMixin, ModelForm):
 class MailingClientModeratorForm(StyleFormMixin, ModelForm):
     class Meta:
         model = MailingClient
-        fields = ('full_name',)
+        fields = ("full_name",)
 
 
 class MessageManagementForm(StyleFormMixin, ModelForm):
@@ -55,7 +55,7 @@ class MessageManagementForm(StyleFormMixin, ModelForm):
         fields = "__all__"
 
     def clean_subject(self):
-        subject = self.cleaned_data['subject']
+        subject = self.cleaned_data["subject"]
         forbidden_words = [
             "казино",
             "криптовалюта",
@@ -75,7 +75,7 @@ class MessageManagementForm(StyleFormMixin, ModelForm):
         return subject
 
     def clean_body(self):
-        body = self.cleaned_data['body']
+        body = self.cleaned_data["body"]
         forbidden_words = [
             "казино",
             "криптовалюта",
@@ -98,7 +98,7 @@ class MessageManagementForm(StyleFormMixin, ModelForm):
 class MessageManagementModeratorForm(StyleFormMixin, ModelForm):
     class Meta:
         model = MessageManagement
-        fields = ('subject',)
+        fields = ("subject",)
 
 
 class NewsletterForm(StyleFormMixin, ModelForm):
@@ -107,7 +107,7 @@ class NewsletterForm(StyleFormMixin, ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)  # Получаем текущего пользователя
+        self.user = kwargs.pop("user", None)  # Получаем текущего пользователя
         super().__init__(*args, **kwargs)
 
     def clean_message(self):
@@ -119,11 +119,13 @@ class NewsletterForm(StyleFormMixin, ModelForm):
     def clean_clients(self):
         clients = self.cleaned_data["clients"]
         if not clients:
-            raise ValidationError("Вы должны выбрать хотя бы одного клиента для рассылки.")
+            raise ValidationError(
+                "Вы должны выбрать хотя бы одного клиента для рассылки."
+            )
         return clients
 
 
 class NewsletterModeratorForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Newsletter
-        fields = ('status',)
+        fields = ("status",)

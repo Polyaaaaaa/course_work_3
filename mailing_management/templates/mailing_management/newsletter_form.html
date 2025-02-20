@@ -8,8 +8,8 @@
                     <div class="card-body">
                         {% csrf_token %}
                         {% for field in form %}
-                            {% if field.name == 'status' and not perms.mailing_management.can_unpublish_message %}
-                                <!-- Скрываем поле status для пользователей без права can_unpublish_product -->
+                            {% if field.name == 'status' and not perms.mailing_management.can_unpublish_newsletter %}
+                                 <!-- Скрываем поле status для пользователей без права can_unpublish_product -->
                             {% else %}
                                 <div class="form-group">
                                     {{ field.label_tag }} {{ field }}

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
     <div class="row text-center">
-        {% for newsletter in object_list %}
+        {% for newsletter in newsletters %}
         <div class="col-3">
             <div class="card mb-4 box-shadow">
                 <div class="card-header">
@@ -16,14 +16,14 @@
                         <li>{{ newsletter.end_date }}</li>
                         <li>{{ newsletter.status }}</li>
                         <li>{{ newsletter.message|truncatechars:100 }}</li>
-                        <li>{{ newsletter.clients }}</li>
+                        <li>{{ newsletter.clients.all|join:", " }}</li>
                     </ul>
                     <a href="{% url 'mailing_management:newsletter_detail' newsletter.id %}" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">Детали</a>
-                    {% if request.user == newsletter.owner or perms.mailing_management.can_unpublish_message %}
+                    {% if request.user == newsletter.owner or perms.mailing_management.can_unpublish_newsletter %}
                         <a href="{% url 'mailing_management:newsletter_update' newsletter.id %}" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">Редактировать</a>
                     {% endif %}
-                    {% if request.user == newsletter.owner or perms.mailing_management.can_delete_message %}
-                        <a href="{% url 'mailing_management:delete_newsletter' newsletter.id %}" class="btn btn-danger">Удалить</a>
+                    {% if request.user == newsletter.owner or perms.mailing_management.can_delete_newsletter %}
+                        <a href="{% url 'mailing_management:newsletter_delete' newsletter.id %}" class="btn btn-danger">Удалить</a>
                     {% endif %}
                 </div>
             </div>

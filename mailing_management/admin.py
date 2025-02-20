@@ -20,9 +20,7 @@ class MessageManagementAdmin(admin.ModelAdmin):
         "subject",
         "body",
     )
-    list_filter = (
-        "subject",
-    )
+    list_filter = ("subject",)
 
 
 @admin.register(Newsletter)
@@ -47,6 +45,8 @@ class NewsletterAdmin(admin.ModelAdmin):
     def get_clients(self, obj):
         # Метод для отображения списка клиентов в админке
         return ", ".join([client.email for client in obj.clients.all()])
+
     get_clients.short_description = "Получатели"
+
 
 # Не забудьте зарегистрировать связанные модели, если они еще не зарегистрированы

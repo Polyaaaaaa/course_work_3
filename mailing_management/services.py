@@ -1,5 +1,7 @@
 # services.py
 from .models import MailingClient, MessageManagement, Newsletter
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 class ClientService:
@@ -27,3 +29,15 @@ class NewsletterService:
         # Получаем все продукты в указанной категории
         newsletters = Newsletter.objects.filter(id=newsletter_id)
         return newsletters
+
+
+def send_newsletter(newsletter):
+    subject = newsletter.message.subject
+    body = newsletter.message.body
+    clients = [client.email for client in newsletter.clients.all()]
+    send_mail(
+        subject,
+        body,
+        settings.DEFAULT_FROM_EMAIL,
+        clients,
+    )

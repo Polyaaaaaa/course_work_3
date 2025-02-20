@@ -26,7 +26,7 @@ from mailing_management.forms import (
     NewsletterModeratorForm,
 )
 from mailing_management.forms import NewsletterForm
-from mailing_management.models import MailingClient, MessageManagement, Newsletter
+from mailing_management.models import MailingClient, MessageManagement, Newsletter, NewsletterStatistics
 from mailing_management.services import (
     ClientService,
     MessageService,
@@ -375,3 +375,25 @@ class HomeView(ListView):
 
 class ContactsView(TemplateView):
     template_name = "mailing_management/contacts.html"
+
+
+class SendMailAndUpdateStatisticsView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        # Логика отправки письма
+        user = request.user
+        subject = 'Тема письма'
+        message = 'Текст сообщения'
+        recipient_list = ['recipient@example.com']
+
+        try:
+            send_mail(subject, message, 'from@example.com', recipient_list)
+            success = True
+        except Exception as e:
+            success = False
+
+        # Обновляем статистику
+        stats, created = NewsletterStatistics.objects.get_or_create(user=user)
+        stats.update_statistics(success)
+
+        # Возвращаем ответ с результатом
+        return render(request, 'mailing_management/mail_sent.html', {'success': success})

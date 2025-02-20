@@ -1,0 +1,31 @@
+<!-- users/templates/users/statistics.html -->
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2 class="mb-4">Статистика рассылок</h2>
+
+    {% if stats %}
+      <div class="list-group">
+        <div class="list-group-item">
+          <strong>Общее количество отправленных сообщений:</strong> {{ stats.total_sent }}
+        </div>
+        <div class="list-group-item">
+          <strong>Количество успешных попыток:</strong> {{ stats.successful_attempts }}
+        </div>
+        <div class="list-group-item">
+          <strong>Количество неуспешных попыток:</strong> {{ stats.failed_attempts }}
+        </div>
+        <div class="list-group-item">
+          <strong>Последнее обновление статистики:</strong> {{ stats.last_update }}
+        </div>
+      </div>
+    {% else %}
+      <div class="alert alert-warning" role="alert">
+        Нет статистики для вашего пользователя.
+      </div>
+    {% endif %}
+
+    <a href="{% url 'users:send_mail_and_update_statistics' %}" class="btn btn-secondary mt-4">Отправить тестовое письмо</a>
+  </div>
+{% endblock %}

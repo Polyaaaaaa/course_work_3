@@ -17,7 +17,7 @@ from mailing_management.views import (
     NewsletterDetailView,
     NewsletterCreateView,
     NewsletterUpdateView,
-    NewsletterDeleteView,
+    NewsletterDeleteView, SendMailAndUpdateStatisticsView,
 )
 from mailing_management.views import ClientListView
 
@@ -65,4 +65,5 @@ urlpatterns = [
         NewsletterDeleteView.as_view(),
         name="newsletter_delete",
     ),
+    path('send-mail/', SendMailAndUpdateStatisticsView.as_view(), name='send_mail_and_update_statistics'),
 ]

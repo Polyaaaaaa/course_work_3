@@ -3,12 +3,15 @@ from django.contrib.auth.mixins import (
     UserPassesTestMixin,
     PermissionRequiredMixin,
 )
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
 from django.views.generic import (
     DeleteView,
     ListView,
@@ -114,18 +117,15 @@ class ClientListView(LoginRequiredMixin, ListView):
     template_name = "mailing_management/client_list.html"
     context_object_name = "clients"
 
+    @method_decorator(cache_page(60 * 15))  # Кешируем страницу на 15 минут
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
     def get_queryset(self):
         queryset = super().get_queryset()
         if self.request.user.is_staff:
             return queryset  # Менеджеры могут видеть все
         return queryset.filter(owner=self.request.user)  # Пользователи видят только свои
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["can_delete"] = self.request.user.has_perm(
-            "mailing_management.delete_client"
-        )
-        return context
 
 
 class ClientDetailView(DetailView):
@@ -135,12 +135,15 @@ class ClientDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        client_id = self.object.id  # Используйте `id` вместо `client_id`
-        context["client_list"] = ClientService.get_client_list(client_id)
-        return context
+        client_id = self.object.id
+        client_list = cache.get(f'client_list_{client_id}')
 
-    def get_success_url(self):
-        return reverse("mailing_management:client_detail", args=[self.object.pk])
+        if not client_list:
+            client_list = ClientService.get_client_list(client_id)
+            cache.set(f'client_list_{client_id}', client_list, timeout=60 * 15)  # Кешируем на 15 минут
+
+        context["client_list"] = client_list
+        return context
 
 
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

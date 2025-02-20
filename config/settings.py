@@ -159,8 +159,9 @@ EMAIL_HOST_PASSWORD = "xrmietmoliehwwtm"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://localhost:6379/1",
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # Локальный кеш в памяти
+        'LOCATION': 'unique-snowflake',
     }
 }
+

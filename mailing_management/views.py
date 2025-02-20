@@ -255,10 +255,6 @@ class NewsletterDetailView(DetailView):
         return context
 
 
-    # def get_success_url(self):
-    #     return reverse("mailing_management:newsletter_detail", args=[self.kwargs.get("pk")])
-
-
 class NewsletterCreateView(LoginRequiredMixin, CreateView):
     model = Newsletter
     form_class = NewsletterForm

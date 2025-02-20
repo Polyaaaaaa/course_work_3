@@ -83,3 +83,38 @@ class Newsletter(models.Model):
             ("can_delete_newsletter", "Can delete newsletter"),
             ("view_all_newsletters", "View all newsletters"),
         ]
+
+
+class NewsletterAttempt(models.Model):
+    ATTEMPT_STATUS_CHOICES = [
+        ("successful", "Успешно"),
+        ("failed", "Не успешно"),
+    ]
+
+    attempt_date = models.DateTimeField(
+        auto_now_add=True, verbose_name="Дата и время попытки"
+    )
+    status = models.CharField(
+        max_length=12,
+        choices=ATTEMPT_STATUS_CHOICES,
+        verbose_name="Статус попытки"
+    )
+    server_response = models.TextField(
+        verbose_name="Ответ почтового сервера",
+        blank=True,
+        null=True
+    )
+    newsletter = models.ForeignKey(
+        'Newsletter',
+        on_delete=models.CASCADE,
+        related_name="attempts",
+        verbose_name="Рассылка"
+    )
+
+    class Meta:
+        verbose_name = "попытка рассылки"
+        verbose_name_plural = "попытки рассылок"
+        ordering = ["-attempt_date"]
+
+    def __str__(self):
+        return f"Попытка {self.id} для рассылки {self.newsletter.id}"

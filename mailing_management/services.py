@@ -44,14 +44,9 @@ def send_newsletter(newsletter):
                 [client],
             )
             # Создаем запись об успешной попытке
-            NewsletterAttempt.objects.create(
-                status="successful",
-                newsletter=newsletter
-            )
+            NewsletterAttempt.objects.create(status="successful", newsletter=newsletter)
         except Exception as e:
             # Создаем запись о неуспешной попытке
             NewsletterAttempt.objects.create(
-                status="failed",
-                server_response=str(e),
-                newsletter=newsletter
+                status="failed", server_response=str(e), newsletter=newsletter
             )

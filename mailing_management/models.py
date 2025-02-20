@@ -95,20 +95,16 @@ class NewsletterAttempt(models.Model):
         auto_now_add=True, verbose_name="Дата и время попытки"
     )
     status = models.CharField(
-        max_length=12,
-        choices=ATTEMPT_STATUS_CHOICES,
-        verbose_name="Статус попытки"
+        max_length=12, choices=ATTEMPT_STATUS_CHOICES, verbose_name="Статус попытки"
     )
     server_response = models.TextField(
-        verbose_name="Ответ почтового сервера",
-        blank=True,
-        null=True
+        verbose_name="Ответ почтового сервера", blank=True, null=True
     )
     newsletter = models.ForeignKey(
-        'Newsletter',
+        "Newsletter",
         on_delete=models.CASCADE,
         related_name="attempts",
-        verbose_name="Рассылка"
+        verbose_name="Рассылка",
     )
 
     class Meta:

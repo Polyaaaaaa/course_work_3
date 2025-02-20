@@ -7,7 +7,9 @@ class Command(BaseCommand):
     help = "Send a newsletter by its ID"
 
     def add_arguments(self, parser):
-        parser.add_argument("newsletter_id", type=int, help="ID of the newsletter to send")
+        parser.add_argument(
+            "newsletter_id", type=int, help="ID of the newsletter to send"
+        )
 
     def handle(self, *args, **options):
         newsletter_id = options["newsletter_id"]
@@ -16,4 +18,6 @@ class Command(BaseCommand):
         # Отправляем рассылку
         send_newsletter(newsletter)
 
-        self.stdout.write(self.style.SUCCESS(f"Newsletter {newsletter_id} sent successfully!"))
+        self.stdout.write(
+            self.style.SUCCESS(f"Newsletter {newsletter_id} sent successfully!")
+        )

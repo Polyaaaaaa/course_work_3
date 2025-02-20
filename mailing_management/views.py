@@ -1,4 +1,8 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    PermissionRequiredMixin,
+)
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.http import HttpResponseForbidden
@@ -23,7 +27,12 @@ from mailing_management.forms import (
 )
 from mailing_management.forms import NewsletterForm
 from mailing_management.models import MailingClient, MessageManagement, Newsletter
-from mailing_management.services import ClientService, MessageService, NewsletterService, send_newsletter
+from mailing_management.services import (
+    ClientService,
+    MessageService,
+    NewsletterService,
+    send_newsletter,
+)
 
 
 # Create your views here.
@@ -85,7 +94,8 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         client = self.get_object()
         # Можно редактировать продукт, если пользователь - владелец или модератор
         return self.request.user == client.owner or self.request.user.has_perm(
-            "mailing_management.can_unpublish_client")
+            "mailing_management.can_unpublish_client"
+        )
 
     def form_valid(self, form):
         # Проверяем, является ли пользователь модератором
@@ -113,8 +123,8 @@ class ClientListView(LoginRequiredMixin, ListView):
 
         # Проверка прав доступа
         if not (
-                self.request.user.is_staff
-                or self.request.user.has_perm("mailing_management.view_all_clients")
+            self.request.user.is_staff
+            or self.request.user.has_perm("mailing_management.view_all_clients")
         ):
             queryset = queryset.filter(owner=self.request.user)
 
@@ -174,7 +184,9 @@ class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "mailing_management/message_form.html"
 
     def get_success_url(self):
-        return reverse("mailing_management:message_detail", args=[self.kwargs.get("pk")])
+        return reverse(
+            "mailing_management:message_detail", args=[self.kwargs.get("pk")]
+        )
 
     def test_func(self):
         # Проверяем, имеет ли пользователь право на редактирование
@@ -237,7 +249,10 @@ class NewsletterListView(LoginRequiredMixin, ListView):
         queryset = super().get_queryset()
 
         # Проверка прав доступа
-        if not (self.request.user.is_staff or self.request.user.has_perm("mailing_management.view_all_newsletters")):
+        if not (
+            self.request.user.is_staff
+            or self.request.user.has_perm("mailing_management.view_all_newsletters")
+        ):
             queryset = queryset.filter(owner=self.request.user)
 
         return queryset
@@ -245,13 +260,17 @@ class NewsletterListView(LoginRequiredMixin, ListView):
 
 class NewsletterDetailView(DetailView):
     model = Newsletter
-    template_name = "mailing_management/newsletter_detail.html"  # Обновляем путь, если необходимо
+    template_name = (
+        "mailing_management/newsletter_detail.html"  # Обновляем путь, если необходимо
+    )
     context_object_name = "newsletter"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         newsletter_id = self.object.id
-        context["newsletter_list"] = NewsletterService.get_newsletter_list(newsletter_id)
+        context["newsletter_list"] = NewsletterService.get_newsletter_list(
+            newsletter_id
+        )
         return context
 
 
@@ -310,8 +329,9 @@ class NewsletterDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         # Проверяем, является ли пользователь владельцем рассылки или имеет ли он право на удаление
-        return self.request.user == self.get_object().owner or self.request.user.has_perm(
-            "mailing_management.can_delete_newsletter"
+        return (
+            self.request.user == self.get_object().owner
+            or self.request.user.has_perm("mailing_management.can_delete_newsletter")
         )
 
     def post(self, request, *args, **kwargs):
@@ -343,9 +363,13 @@ class HomeView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['total_newsletters'] = Newsletter.objects.count()
-        context['active_newsletters'] = Newsletter.objects.filter(status='Запущена').count()
-        context['unique_recipients'] = MailingClient.objects.values('email').distinct().count()
+        context["total_newsletters"] = Newsletter.objects.count()
+        context["active_newsletters"] = Newsletter.objects.filter(
+            status="Запущена"
+        ).count()
+        context["unique_recipients"] = (
+            MailingClient.objects.values("email").distinct().count()
+        )
         return context
 
 

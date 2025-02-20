@@ -5,10 +5,11 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DeleteView, ListView, TemplateView, CreateView, UpdateView, DetailView
 
-from mailing_management.forms import MailingClientForm, MailingClientModeratorForm, MessageManagementForm
+from mailing_management.forms import MailingClientForm, MailingClientModeratorForm, MessageManagementForm, \
+    NewsletterModeratorForm
 from mailing_management.forms import NewsletterForm
 from mailing_management.models import MailingClient, MessageManagement, Newsletter
-from mailing_management.services import ClientService, MessageService
+from mailing_management.services import ClientService, MessageService, NewsletterService
 
 
 # Create your views here.
@@ -212,10 +213,28 @@ class MessageDetailView(DetailView):
         return context
 
 
-class NewsletterListView(ListView):
+class NewsletterListView(LoginRequiredMixin, ListView):
     model = Newsletter
     template_name = 'newsletter_list.html'
     context_object_name = 'newsletters'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['can_delete'] = self.request.user.has_perm('mailing_management.delete_newsletter')
+        return context
+
+    class NewsletterListView(LoginRequiredMixin, ListView):
+        model = Newsletter
+        template_name = "mailing_management/newsletter_list.html"
+        context_object_name = "newsletters"
+
+        def get_queryset(self):
+            queryset = super().get_queryset()
+
+            # Пример фильтрации по статусу или другим полям
+            queryset = queryset.filter(status='created')
+
+            return queryset
 
 
 class NewsletterDetailView(DetailView):
@@ -223,12 +242,29 @@ class NewsletterDetailView(DetailView):
     template_name = 'newsletter_detail.html'
     context_object_name = 'newsletter'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        newsletter_id = self.object.id  # Используйте `id` вместо `client_id`
+        context['newsletter_list'] = NewsletterService.get_newsletter_list(newsletter_id)
+        return context
+
+    def get_success_url(self):
+        return reverse("mailing_management:newsletter_detail", args=[self.object.pk])
+
 
 class NewsletterCreateView(CreateView):
     model = Newsletter
     form_class = NewsletterForm
     template_name = 'newsletter_form.html'
-    success_url = reverse_lazy('newsletter_list')  # Перенаправление после успешного сохранения
+    # success_url = reverse_lazy('newsletter_list')  # Перенаправление после успешного сохранения
+    success_url = reverse_lazy("mailing_management:home")
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user  # Устанавливаем владельца
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("mailing_management:home")
 
 
 class NewsletterUpdateView(UpdateView):
@@ -237,11 +273,44 @@ class NewsletterUpdateView(UpdateView):
     template_name = 'newsletter_form.html'
     success_url = reverse_lazy('newsletter_list')  # Перенаправление после успешного обновления
 
+    def get_success_url(self):
+        return reverse("mailing_management:newsletter_detail", args=[self.kwargs.get("pk")])
+
+    def get_form_class(self):
+        user = self.request.user
+        # Если пользователь - владелец продукта
+        if user == self.get_object().owner:
+            return NewsletterForm
+        # Если пользователь - модератор
+        if user.has_perm("mailing_management.can_unpublish_newsletter"):
+            return NewsletterModeratorForm
+        raise PermissionDenied('Извините, но вы не обладаете достаточным количеством прав.')
+
+    # def test_func(self):
+    #     # Получаем объект продукта
+    #     product = self.get_object()
+    #     # Можно редактировать продукт, если пользователь - владелец или модератор
+    #     return self.request.user == product.owner or self.request.user.has_perm("catalog.can_unpublish_product")
+
 
 class NewsletterDeleteView(DeleteView):
     model = Newsletter
     template_name = 'newsletter_confirm_delete.html'
-    success_url = reverse_lazy('newsletter_list')  # Перенаправление после успешного удаления
+    success_url = reverse_lazy('mailing_management:newsletter_list')  # Перенаправление после успешного удаления
+
+    def test_func(self):
+        # Проверяем, является ли пользователь владельцем рассылки или имеет ли он право на удаление
+        return self.request.user.has_perm(
+            "moderator.can_delete_newsletter"
+        )
+
+    def post(self, request, *args, **kwargs):
+        # Проверяем права доступа
+        if not self.test_func():
+            return HttpResponseForbidden("У вас нет прав для удаления этой рассылки продукта.")
+
+        # Если права доступа есть, продолжаем с удалением
+        return super().post(request, *args, **kwargs)
 
 
 class HomeView(ListView):

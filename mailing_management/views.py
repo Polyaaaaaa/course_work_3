@@ -337,8 +337,16 @@ class SendNewsletterView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class HomeView(ListView):
-    model = MailingClient
+    model = MailingClient  # Используем Client как основную модель для ListView
     template_name = "mailing_management/home.html"
+    context_object_name = "clients"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_newsletters'] = Newsletter.objects.count()
+        context['active_newsletters'] = Newsletter.objects.filter(status='Запущена').count()
+        context['unique_recipients'] = MailingClient.objects.values('email').distinct().count()
+        return context
 
 
 class ContactsView(TemplateView):

@@ -114,3 +114,26 @@ class NewsletterAttempt(models.Model):
 
     def __str__(self):
         return f"Попытка {self.id} для рассылки {self.newsletter.id}"
+
+
+class NewsletterStatistics(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    total_sent = models.IntegerField(default=0)  # Общее количество отправленных сообщений
+    successful_attempts = models.IntegerField(default=0)  # Количество успешных попыток
+    failed_attempts = models.IntegerField(default=0)  # Количество неуспешных попыток
+    last_update = models.DateTimeField(auto_now=True)  # Время последнего обновления статистики
+
+    def __str__(self):
+        return f"Статистика для {self.user.username}"
+
+    def update_statistics(self, success=True):
+        """
+        Обновляет статистику в зависимости от результата отправки сообщения.
+        """
+        if success:
+            self.successful_attempts += 1
+        else:
+            self.failed_attempts += 1
+        self.total_sent += 1
+        self.save()
+

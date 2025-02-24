@@ -66,14 +66,10 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("mailing_management:home")
 
     def form_valid(self, form):
-        # Только пользователь или менеджер может создать клиента
         if not self.request.user.has_perm("can_create_client"):
             raise PermissionDenied("У вас нет прав для создания клиента.")
-        form.instance.owner = self.request.user
+        form.instance.owner = self.request.user  # Автоматически заполняем владельца
         return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy("mailing_management:home")
 
 
 class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

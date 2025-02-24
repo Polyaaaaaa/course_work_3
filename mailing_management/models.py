@@ -6,17 +6,19 @@ from users.models import CustomUser
 # Create your models here.
 class MailingClient(models.Model):
     owner = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name="clients",
-        null=True,
-        blank=True,
-    )  # Разрешаем NULL
+        CustomUser, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="added_clients",
+        verbose_name="Владелец (кто добавил)"
+    )
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="mailing_clients",
+        verbose_name="Пользователь (если зарегистрирован)"
+    )
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=150, verbose_name="ф.и.о")
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     comment = models.TextField(verbose_name="комментарий")
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=1)
 
     class Meta:
         verbose_name = "получатель рассылки"

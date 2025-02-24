@@ -110,6 +110,12 @@ class NewsletterForm(StyleFormMixin, ModelForm):
         self.user = kwargs.pop("user", None)  # Получаем текущего пользователя
         super().__init__(*args, **kwargs)
 
+        # Отображаем тему сообщения в поле message
+        if "subject" in self.fields and "message" in self.fields:
+            self.fields["message"].widget.attrs["placeholder"] = "Введите текст сообщения"
+            if self.instance and self.instance.subject:
+                self.fields["message"].initial = f"Тема: {self.instance.subject}\n\n"
+
     def clean_message(self):
         message = self.cleaned_data["message"]
         if not message:

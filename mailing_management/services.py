@@ -1,5 +1,5 @@
 # services.py
-from .models import MailingClient, MessageManagement, Newsletter, NewsletterAttempt
+from .models import MailingClient, MessageManagement, Newsletter, NewsletterAttempt, NewsletterStatistics
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -35,6 +35,7 @@ def send_newsletter(newsletter):
     subject = newsletter.message.subject
     body = newsletter.message.body
     clients = [client.email for client in newsletter.clients.all()]
+
     for client in clients:
         try:
             send_mail(
@@ -45,8 +46,19 @@ def send_newsletter(newsletter):
             )
             # Создаем запись об успешной попытке
             NewsletterAttempt.objects.create(status="successful", newsletter=newsletter)
+
+            # Обновляем статистику успешных отправок
+            stats, created = NewsletterStatistics.objects.get_or_create(newsletter=newsletter)
+            stats.successful_attempts += 1
+            stats.save()
+
         except Exception as e:
             # Создаем запись о неуспешной попытке
             NewsletterAttempt.objects.create(
                 status="failed", server_response=str(e), newsletter=newsletter
             )
+
+            # Обновляем статистику неудачных отправок
+            stats, created = NewsletterStatistics.objects.get_or_create(newsletter=newsletter)
+            stats.failed_attempts += 1
+            stats.save()

@@ -5,12 +5,14 @@ from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, \
     PasswordResetConfirmView, PasswordResetCompleteView
 from django.core.mail import send_mail
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
+from django.contrib import messages
 
 from config.settings import EMAIL_HOST_USER
 from .forms import CustomUserCreationForm
+from .models import CustomUser
 
 
 # Create your views here.
@@ -25,14 +27,29 @@ class RegisterView(CreateView):
         user.token = token
         user.save()
         host = self.request.get_host()
-        url = f"http://{host}/users/email-confirm/{token}/"
+        scheme = self.request.scheme  # http или https
+        url = f"{scheme}://{host}/users/email-confirm/{token}/"
         send_mail(
             subject="Подтверждение почты",
             message=f"Для подтверждения вашей почты перейдите по ссылке: {url}",
             from_email=EMAIL_HOST_USER,
             recipient_list=[user.email],
         )
+        messages.success(self.request, "На вашу почту отправлено письмо с подтверждением.")
         return super().form_valid(form)
+
+
+def email_confirm_view(request, token):
+    try:
+        user = CustomUser.objects.get(token=token)
+        user.is_active = True
+        user.token = ""  # Очистить токен после подтверждения
+        user.save()
+        messages.success(request, "Email успешно подтвержден. Теперь вы можете войти.")
+    except CustomUser.DoesNotExist:
+        messages.error(request, "Неверный токен.")
+
+    return redirect("users:login")
 
 
 class CustomLoginView(LoginView):
@@ -51,8 +68,8 @@ class CustomLogoutView(LogoutView):
 
 class PasswordResetView_(PasswordResetView):
     template_name = 'users/password_reset.html'
-    email_template_name = 'users/password_reset_email.html'
-    subject_template_name = 'users/password_reset_subject.txt'
+    email_template_name = 'users/password_reset_email.html'  # Шаблон для письма
+    subject_template_name = 'users/password_reset_subject.txt'  # Тема письма
     success_url = reverse_lazy('users:password_reset_done')
 
 
@@ -63,7 +80,6 @@ class PasswordResetDoneView_(PasswordResetDoneView):
 class PasswordResetConfirmView_(PasswordResetConfirmView):
     template_name = 'users/password_reset_confirm.html'
     success_url = reverse_lazy('users:password_reset_complete')
-
 
 class PasswordResetCompleteView_(PasswordResetCompleteView):
     template_name = 'users/password_reset_complete.html'

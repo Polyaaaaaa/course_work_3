@@ -36,6 +36,9 @@ def send_newsletter(newsletter):
     body = newsletter.message.body
     clients = [client.email for client in newsletter.clients.all()]
 
+    # Получаем статистику рассылки или создаем новую
+    stats, created = NewsletterStatistics.objects.get_or_create(newsletter=newsletter)
+
     for client in clients:
         try:
             send_mail(
@@ -47,10 +50,8 @@ def send_newsletter(newsletter):
             # Создаем запись об успешной попытке
             NewsletterAttempt.objects.create(status="successful", newsletter=newsletter)
 
-            # Обновляем статистику успешных отправок
-            stats, created = NewsletterStatistics.objects.get_or_create(newsletter=newsletter)
-            stats.successful_attempts += 1
-            stats.save()
+            # Обновляем статистику
+            stats.update_statistics(success=True)
 
         except Exception as e:
             # Создаем запись о неуспешной попытке
@@ -58,7 +59,5 @@ def send_newsletter(newsletter):
                 status="failed", server_response=str(e), newsletter=newsletter
             )
 
-            # Обновляем статистику неудачных отправок
-            stats, created = NewsletterStatistics.objects.get_or_create(newsletter=newsletter)
-            stats.failed_attempts += 1
-            stats.save()
+            # Обновляем статистику
+            stats.update_statistics(success=False)

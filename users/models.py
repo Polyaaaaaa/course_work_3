@@ -8,6 +8,7 @@ class CustomUser(AbstractUser):
     country = models.CharField(max_length=15, blank=True, null=True)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     token = models.CharField(max_length=32, blank=True, null=True, verbose_name="Токен подтверждения")
+    is_active = models.BooleanField(default=False)
 
     groups = models.ManyToManyField(
         Group,

@@ -5,6 +5,7 @@ from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, \
     PasswordResetConfirmView, PasswordResetCompleteView
 from django.core.mail import send_mail
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
@@ -54,9 +55,14 @@ def email_confirm_view(request, token):
 
 class CustomLoginView(LoginView):
     template_name = "users/login.html"
-    success_url = reverse_lazy(
-        "mailing_management:home"
-    )  # Перенаправление после успешного входа
+    success_url = reverse_lazy("mailing_management:home")
+
+    def form_valid(self, form):
+        user = form.get_user()
+        if not user.is_active:
+            messages.error(self.request, "Ваш email не подтвержден. Пожалуйста, проверьте почту.")
+            return HttpResponseRedirect(reverse_lazy("users:login"))  # Перенаправляем обратно на вход
+        return super().form_valid(form)
 
 
 class CustomLogoutView(LogoutView):

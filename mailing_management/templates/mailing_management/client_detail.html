@@ -1,0 +1,20 @@
+{% extends 'mailing_management/base.html' %}
+
+{% block title %}
+    <h1 class="fw-light">{{ title }}</h1>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'mailing_management:home' %}" class="btn btn-primary">Назад к списку получателей</a>
+<div class="album py-5 bg-body-tertiary">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            <div class="col">
+                <div class="card shadow-sm">
+                    {% include 'mailing_management/includes/client_card.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+<div class="col">
+    <div class="card shadow-sm h-100">
+        {% if object.image %}
+            <img src="{{ object.image.url }}">
+        {% endif %}
+        <div class="card-body">
+            <p class="card-text">Тема письма: {{ object.subject }}</p>
+            <p class="card-text">Тело письма: {{ object.body }}</p>
+        </div>
+    </div>
+</div>

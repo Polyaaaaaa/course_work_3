@@ -1,0 +1,22 @@
+{% extends 'mailing_management/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Детали рассылки</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Статус: {{ newsletter.status }}</h5>
+                    <p class="card-text">Дата начала: {{ newsletter.beginning_date }}</p>
+                    <p class="card-text">Дата окончания: {{ newsletter.end_date }}</p>
+                    <p class="card-text">Сообщение: {{ newsletter.message.subject }}</p>
+                    <p class="card-text">Получатели: {{ newsletter.clients.all|join:", " }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

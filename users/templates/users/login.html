@@ -1,0 +1,28 @@
+{% extends 'mailing_management/base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h2>Вход на сайт</h2>
+            <form class="row" method="post" enctype="multipart/form-data">
+                <div class="card">
+                    <div class="card-body">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+
+                        <button type="submit" class="btn btn-primary">Войти</button>
+
+                        <!-- Кнопка "Забыли пароль?" -->
+                        <div class="mt-3">
+                            <a href="{% url 'users:password_reset' %}" class="btn btn-link">Забыли пароль?</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

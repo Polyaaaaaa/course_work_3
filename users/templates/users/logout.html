@@ -1,0 +1,17 @@
+{% extends 'mailing_management/base.html' %}
+
+{% block title %}Logout{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h2>Выход с сайта</h2>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" href="{% url 'users:logout' %}" class="btn btn-primary">Выйти</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

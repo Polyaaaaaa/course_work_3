@@ -1,0 +1,24 @@
+{% extends 'mailing_management/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2>Подтверждение удаления</h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-danger">Вы уверены, что хотите удалить "{{ newsletter.message }}"?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                            <a href="{% url 'mailing_management:home' %}" class="btn btn-secondary">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
